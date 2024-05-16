@@ -40,7 +40,7 @@ const AddStudentScreen = ({ navigation }) => {
         throw new Error('Failed to create student');
       }
   
-      navigation.navigate('MainScreen');
+      navigation.goBack();
     } catch (error) {
       console.error('Lỗi khi lưu thông tin sinh viên:', error);
       Alert.alert('Lỗi', 'Đã có lỗi xảy ra khi lưu thông tin sinh viên.');

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const StudentInfoScreen = ({ route, navigation }) => {
-  const { studentId, studentCode } = route.params;
+  const { studentId, studentCode  , dateOfBirth} = route.params;
   const [studentInfo, setStudentInfo] = useState(null);
 
   useEffect(() => {
@@ -12,17 +12,14 @@ const StudentInfoScreen = ({ route, navigation }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+   
   
-      if (!token) {
-        console.error('Token is empty or null');
-        return;
-      }
+     
   
       const response = await fetch(`http://demo-api.stecom.vn:8888/api/student/get-student-by-id/${studentCode}?id=${studentId}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+         
           'Content-Type': 'application/json',
         },
       });
@@ -55,17 +52,12 @@ const StudentInfoScreen = ({ route, navigation }) => {
         { text: 'Hủy', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
         { text: 'Xóa', onPress: async () => {
           try {
-            const token = await AsyncStorage.getItem('token');
-
-            if (!token) {
-              console.error('Token is empty or null');
-              return;
-            }
+           
 
             const response = await fetch(`http://demo-api.stecom.vn:8888/api/student/delete/${studentId}`, {
               method: 'DELETE',
               headers: {
-                'Authorization': `Bearer ${token}`,
+              
                 'Content-Type': 'application/json',
               },
             });
@@ -98,7 +90,7 @@ const StudentInfoScreen = ({ route, navigation }) => {
       <Text style={styles.title}>Thông tin sinh viên</Text>
       <Text>Name: {studentInfo.name}</Text>
       <Text>Student Code: {studentInfo.studentCode}</Text>
-      <Text>Email: {studentInfo.email}</Text>
+      <Text>DateOfBirth: {studentInfo.dateOfBirth}</Text>
       {/* Thêm các thông tin sinh viên khác nếu cần */}
       <TouchableOpacity onPress={handleDeleteStudent}>
         <Text style={styles.deleteText}>Xóa sinh viên</Text>

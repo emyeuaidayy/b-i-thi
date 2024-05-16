@@ -4,24 +4,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const JobInfoBox = ({ navigation }) => {
-
-  
   const [jobList, setJobList] = useState([]);
   const [searchInput, setSearchInput] = useState('');
 
-  const fetchData = useCallback(async () => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const reloadScreen = navigation.addListener('focus', () => {
+      fetchData();
+    });
+
+    return reloadScreen;
+  }, [navigation]);
+
+  const fetchData = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
-
-      if (!token) {
-        console.error('Token is empty or null');
-        return;
-      }
-
+      // Fetch data from API
       const response = await fetch('http://demo-api.stecom.vn:8888/api/student/get-all', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -41,27 +44,20 @@ const JobInfoBox = ({ navigation }) => {
     } catch (error) {
       console.error('Error fetching job info:', error);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  };
 
   const handleSearch = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
-
-      if (!token) {
-        console.error('Token is empty or null');
+      if (!searchInput) {
+        fetchData(); // Nếu ô tìm kiếm trống, tải lại danh sách ban đầu
         return;
       }
-
+      // Fetch data based on search input
       const [id, studentCode] = searchInput.split(',');
 
-      const response = await fetch(`http://demo-api.stecom.vn:8888/api/student/get-student-by-id/${id}?id=${studentCode}`, {
+      const response = await fetch(`http://demo-api.stecom.vn:8888/api/student/get-student-by-id/${studentCode}?id=${id}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -79,11 +75,10 @@ const JobInfoBox = ({ navigation }) => {
     } catch (error) {
       console.error('Error fetching job info:', error);
     }
-  
   };
 
-  const showStudentInfo = (id, studentCode) => {
-    navigation.navigate('StudentInfo', { studentId: id, studentCode: studentCode });
+  const showStudentInfo = (id, studentCode , dateOfBirth) => {
+    navigation.navigate('StudentInfo', { studentId: id, studentCode: studentCode , dateOfBirth : dateOfBirth});
   };
 
   const handleAddSV = () => {
@@ -91,11 +86,12 @@ const JobInfoBox = ({ navigation }) => {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => showStudentInfo(item.id, item.studentCode)}>
+    <TouchableOpacity onPress={() => showStudentInfo(item.id, item.studentCode, item.dateOfBirth)}>
       <View style={styles.jobContainer}>
         <Text style={styles.jobName}>{item.name}</Text>
-        <Text style={styles.studentCode}>MSSV: {item.studentCode}</Text>
-        <Text style={styles.email}>Email: {item.email}</Text>
+        <Text style={styles.normalText}>MSSV: {item.studentCode}</Text>
+        <Text style={styles.normalText}>DateOfBirth: {item.dateOfBirth}</Text>
+        <Text style={styles.normalText}>Id: {item.id}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -195,7 +191,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
   },
-  email: {
+  normalText: {
     fontSize: 16,
     marginBottom: 8,
   },
